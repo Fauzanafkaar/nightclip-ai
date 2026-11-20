@@ -6,94 +6,109 @@
 <meta name="theme-color" content="#090b12">
 <title>NightClip AI</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#090b12;color:#f5f5fb;font:15px system-ui}header,main{max-width:900px;margin:auto;padding:18px}h1{margin:0;color:#c4a5ff}p,.muted{color:#9ba5bb;font-size:13px}.card{background:#131827;border:1px solid #303950;border-radius:16px;padding:16px;margin:12px 0}button,.pick{background:#8055e8;color:white;border:0;border-radius:10px;padding:12px 15px;font-weight:700;display:inline-block;margin:5px 4px 5px 0;cursor:pointer}button:disabled{opacity:.4}input[type=file]{display:none}input[type=range]{width:100%;accent-color:#a78bfa}video{width:100%;max-height:340px;background:#000;border-radius:12px;margin-top:10px}textarea,select{width:100%;background:#080d18;color:white;border:1px solid #37415a;border-radius:10px;padding:12px}textarea{min-height:160px}label{display:block;margin:12px 0 5px;color:#cbd2e3;font-size:13px}.bar{height:7px;background:#293149;border-radius:9px;overflow:hidden}.bar i{display:block;width:0;height:100%;background:#a78bfa}.status{font-size:13px;color:#d2c5ff;margin:9px 0}.secondary{background:#273149}.green{background:#087d67}.hide{display:none}.download{display:inline-block;background:#087d67;color:white;padding:12px 15px;border-radius:10px;text-decoration:none;font-weight:700;margin:8px 0}@media(min-width:700px){.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#090b12;color:#f5f5fb;font:15px system-ui}header,main{max-width:900px;margin:auto;padding:18px}h1{margin:0;color:#c4a5ff}p,.muted{color:#9ba5bb;font-size:13px}.card{background:#131827;border:1px solid #303950;border-radius:16px;padding:16px;margin:12px 0}button,.pick,.download{background:#8055e8;color:white;border:0;border-radius:10px;padding:12px 15px;font-weight:700;display:inline-block;margin:5px 4px 5px 0;cursor:pointer;text-decoration:none}button:disabled{opacity:.4}input[type=file]{display:none}input[type=range]{width:100%;accent-color:#a78bfa}video{width:100%;max-height:360px;background:#000;border-radius:12px;margin-top:10px}textarea,select{width:100%;background:#080d18;color:white;border:1px solid #37415a;border-radius:10px;padding:12px}textarea{min-height:150px}label{display:block;margin:12px 0 5px;color:#cbd2e3;font-size:13px}.bar{height:8px;background:#293149;border-radius:9px;overflow:hidden}.bar i{display:block;width:0;height:100%;background:#a78bfa;transition:width .2s}.status{font-size:13px;color:#d2c5ff;margin:9px 0}.secondary{background:#273149}.green,.download{background:#087d67}.hide{display:none}.output{border:1px solid #087d67;background:#0d211e;border-radius:12px;padding:14px;margin-top:14px}.output h3{margin:0 0 8px;color:#9df0d5}.danger{color:#ffb4b4}.small{font-size:12px;color:#9ba5bb}@media(min-width:700px){.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
 </style>
 </head>
 <body>
-<header><h1>🌙 NightClip AI</h1><p>Editor video pribadi • subtitle otomatis Indonesia • gratis</p></header>
+<header><h1>🌙 NightClip AI</h1><p>Editor video pribadi • subtitle otomatis Indonesia • gratis di browser</p></header>
 <main>
 <div class="cols">
 <section class="card">
 <h3>1. Pilih video</h3>
 <label class="pick" for="file">📁 Ambil video dari HP</label>
 <input id="file" type="file" accept="video/*">
-<video id="video" controls playsinline class="hide"></video>
+<video id="sourceVideo" controls playsinline class="hide"></video>
 <p id="info" class="muted">Belum ada video dipilih.</p>
 <div id="trim" class="hide">
-<label>Awal potongan: <span id="stxt">0</span></label><input id="start" type="range" min="0" max="1" value="0" step=".1">
-<label>Akhir potongan: <span id="etxt">0</span></label><input id="end" type="range" min="0" max="1" value="1" step=".1">
-<button id="cut" class="green">Potong & ekspor MP4</button>
-<div id="downloadArea"></div>
+<label>Awal potongan: <b id="stxt">0.0s</b></label><input id="start" type="range" min="0" max="1" value="0" step=".1">
+<label>Akhir potongan: <b id="etxt">0.0s</b></label><input id="end" type="range" min="0" max="1" value="1" step=".1">
+<button id="cut" class="green">✂️ Potong & buat video</button>
 </div>
-<p class="muted">Pemrosesan berlangsung di browser HP. Untuk hasil terbaik, mulai dengan video pendek dan ruang penyimpanan yang cukup.</p>
+<p class="muted">Untuk HP, coba video 10–30 detik terlebih dahulu. Proses video panjang dapat membutuhkan RAM besar.</p>
 </section>
 <section class="card">
 <h3>2. Subtitle otomatis</h3>
-<p class="muted">Whisper Tiny berjalan di browser. Pengunduhan model pertama kali membutuhkan internet dan bisa cukup besar.</p>
+<p class="muted">Whisper Tiny berjalan di browser. Pengunduhan model pertama kali membutuhkan internet dan ruang penyimpanan.</p>
 <label>Bahasa audio</label>
 <select id="lang"><option value="indonesian">Indonesia</option><option value="english">Inggris</option><option value="">Deteksi otomatis</option></select>
 <button id="trans" disabled>✨ Buat subtitle otomatis</button>
-<div class="bar"><i id="progress"></i></div>
-<div id="status" class="status">Pilih video terlebih dahulu.</div>
+<div class="bar"><i id="progress"></i></div><div id="status" class="status">Pilih video terlebih dahulu.</div>
 <button id="srt" class="secondary" disabled>Unduh subtitle SRT</button>
 </section>
 </div>
 <section class="card">
-<h3>3. Edit hasil subtitle</h3>
-<textarea id="captions" placeholder="Teks subtitle akan tampil di sini. Kamu bisa mengeditnya."></textarea>
+<h3>3. Edit subtitle</h3>
+<textarea id="captions" placeholder="Teks subtitle hasil transkripsi akan muncul di sini. Jangan hapus nomor dan timestamp jika ingin subtitle dibakar ke video."></textarea>
 <button id="copy" class="secondary" disabled>Salin teks</button>
 <button id="moments" class="secondary" disabled>Cari kata momen lucu</button>
 <div id="hits" class="muted"></div>
 </section>
-<p class="muted">Catatan: pencarian momen lucu memakai kata kunci sederhana, bukan pemahaman humor AI. Subtitle akan dibakar ke video MP4 jika proses transkripsi menghasilkan segmen bertimestamp. Video diproses di perangkatmu, bukan diunggah ke server NightClip.</p>
+<section class="card">
+<h3>4. Hasil video</h3>
+<div id="emptyOutput" class="muted">Belum ada video hasil. Setelah proses ekspor berhasil, video akan muncul di bagian ini.</div>
+<div id="output" class="output hide">
+<h3>✅ Video berhasil dibuat</h3>
+<video id="resultVideo" controls playsinline></video>
+<p id="resultInfo" class="small"></p>
+<a id="downloadLink" class="download" href="#" download="nightclip-hasil.mp4">⬇️ Download MP4 ke HP</a>
+<p class="small">Jika tombol tidak otomatis mengunduh, tekan tombol Download MP4 di atas. File biasanya masuk ke folder Download.</p>
+</div>
+</section>
+<p class="muted">Privasi: video diproses di perangkat, bukan dikirim ke server NightClip. Pencarian momen lucu memakai kata kunci sederhana, bukan AI pemahaman humor.</p>
 </main>
 <script type="module">
 const $=id=>document.getElementById(id);
-let file=null,videoURL=null,asr=null,ffmpeg=null,parts=[],plain='',ffmpegReady=false;
-const say=(s,p)=>{$('status').textContent=s;if(p!==undefined)$('progress').style.width=p+'%';};
+let file=null,sourceURL=null,resultURL=null,asr=null,ffmpeg=null,ffmpegReady=false,parts=[],plain='';
+const say=(s,p)=>{$('status').textContent=s;if(p!==undefined)$('progress').style.width=Math.max(0,Math.min(100,p))+'%';};
 const escapeHTML=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const time=n=>{n=Math.max(0,n||0);let ms=Math.round(n*1000),h=Math.floor(ms/3600000);ms%=3600000;let m=Math.floor(ms/60000);ms%=60000;let s=Math.floor(ms/1000);return [h,m,s].map(x=>String(x).padStart(2,'0')).join(':')+','+String(ms%1000).padStart(3,'0');};
-const makeSRT=items=>items.map((p,i)=>(i+1)+'\n'+time(p.start)+' --> '+time(p.end)+'\n'+p.text.trim()).join('\n\n');
-function downloadBlob(name,blob){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.textContent='⬇ Simpan '+name+' ke HP';a.className='download';$('downloadArea').replaceChildren(a);a.click();setTimeout(()=>URL.revokeObjectURL(u),120000);}
-function downloadText(name,text,type){downloadBlob(name,new Blob([text],{type}));}
+const stamp=n=>{let ms=Math.max(0,Math.round((n||0)*1000)),h=Math.floor(ms/3600000);ms%=3600000;let m=Math.floor(ms/60000);ms%=60000;let s=Math.floor(ms/1000);return [h,m,s].map(v=>String(v).padStart(2,'0')).join(':')+','+String(ms%1000).padStart(3,'0');};
+const makeSRT=arr=>arr.map((p,i)=>(i+1)+'\n'+stamp(p.start)+' --> '+stamp(p.end)+'\n'+p.text.trim()).join('\n\n');
+function saveBlob(blob,name){
+ if(resultURL)URL.revokeObjectURL(resultURL);
+ resultURL=URL.createObjectURL(blob);
+ $('resultVideo').src=resultURL;
+ $('downloadLink').href=resultURL;
+ $('downloadLink').download=name;
+ $('resultInfo').textContent=name+' • '+(blob.size/1048576).toFixed(1)+' MB';
+ $('emptyOutput').classList.add('hide');$('output').classList.remove('hide');
+ // Jangan hanya mengandalkan download otomatis; tombol download tetap terlihat.
+ $('output').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function saveText(name,text){const u=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);}
 $('file').addEventListener('change',e=>{
  file=e.target.files?.[0];if(!file)return;
- if(videoURL)URL.revokeObjectURL(videoURL);
- videoURL=URL.createObjectURL(file);$('video').src=videoURL;$('video').classList.remove('hide');
+ if(sourceURL)URL.revokeObjectURL(sourceURL);
+ sourceURL=URL.createObjectURL(file);$('sourceVideo').src=sourceURL;$('sourceVideo').classList.remove('hide');
  $('info').textContent=file.name+' • '+(file.size/1048576).toFixed(1)+' MB';
- $('video').onloadedmetadata=()=>{const d=$('video').duration;$('trim').classList.remove('hide');$('start').max=d;$('end').max=d;$('end').value=d;$('etxt').textContent=d.toFixed(1)+'s';};
- $('trans').disabled=false;$('downloadArea').replaceChildren();say('Video siap diproses.',0);
+ $('sourceVideo').onloadedmetadata=()=>{const d=$('sourceVideo').duration;$('trim').classList.remove('hide');$('start').max=d;$('end').max=d;$('end').value=d;$('etxt').textContent=d.toFixed(1)+'s';};
+ $('trans').disabled=false;$('output').classList.add('hide');$('emptyOutput').classList.remove('hide');say('Video siap diproses.',0);
 });
 $('start').oninput=()=>{$('stxt').textContent=(+$('start').value).toFixed(1)+'s';if(+$('start').value>=+$('end').value)$('end').value=$('start').value;};
 $('end').oninput=()=>{$('etxt').textContent=(+$('end').value).toFixed(1)+'s';if(+$('end').value<=+$('start').value)$('start').value=$('end').value;};
 
 async function loadFFmpeg(){
  if(ffmpegReady)return;
- say('Mengunduh mesin pemotong video…',8);
+ say('Memuat mesin pemotong video…',8);
  const {FFmpeg}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js');
  const {toBlobURL}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js');
  ffmpeg=new FFmpeg();
  const pkg='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm';
  const core='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
- say('Menyiapkan worker lokal dari CDN…',14);
- // Worker harus dibuat sebagai Blob agar origin-nya mengikuti halaman GitHub Pages.
- // Import modul pendukung worker diarahkan ke URL CDN absolut.
- const workerResponse=await fetch(pkg+'/worker.js');
- if(!workerResponse.ok)throw new Error('Tidak dapat mengambil FFmpeg worker ('+workerResponse.status+').');
- let workerText=await workerResponse.text();
- workerText=workerText.replaceAll('"./const.js"','"'+pkg+'/const.js"')
-                      .replaceAll("'./const.js'","'"+pkg+"/const.js'")
-                      .replaceAll('"./errors.js"','"'+pkg+'/errors.js"')
-                      .replaceAll("'./errors.js'","'"+pkg+"/errors.js'");
- const classWorkerURL=URL.createObjectURL(new Blob([workerText],{type:'text/javascript'}));
+ say('Menyiapkan worker FFmpeg…',15);
+ const response=await fetch(pkg+'/worker.js');
+ if(!response.ok)throw new Error('Worker FFmpeg tidak dapat diunduh. Periksa koneksi internet.');
+ let worker=await response.text();
+ // Ubah import relatif menjadi URL absolut agar worker dari Blob bisa menemukan modul pendukung.
+ worker=worker.replace(/(["'])\.\/(const|errors)\.js\1/g,(_,q,name)=>q+pkg+'/'+name+'.js'+q);
+ const workerBlob=URL.createObjectURL(new Blob([worker],{type:'text/javascript'}));
  try{
   await ffmpeg.load({
-   classWorkerURL,
+   classWorkerURL:workerBlob,
    coreURL:await toBlobURL(core+'/ffmpeg-core.js','text/javascript'),
    wasmURL:await toBlobURL(core+'/ffmpeg-core.wasm','application/wasm')
   });
   ffmpegReady=true;
- }finally{URL.revokeObjectURL(classWorkerURL);}
+ }finally{URL.revokeObjectURL(workerBlob);}
 }
 $('trans').onclick=async()=>{
  const b=$('trans');b.disabled=true;
@@ -110,53 +125,53 @@ $('trans').onclick=async()=>{
   const ratio=buf.sampleRate/16000,out=new Float32Array(Math.floor(mono.length/ratio));
   for(let i=0;i<out.length;i++){const x=i*ratio,j=Math.floor(x),f=x-j;out[i]=mono[j]*(1-f)+mono[Math.min(j+1,mono.length-1)]*f;}
   await ctx.close();say('Whisper mengenali ucapan…',45);
-  const lang=$('lang').value;
-  const res=await asr(out,{chunk_length_s:25,stride_length_s:5,return_timestamps:true,task:'transcribe',...(lang?{language:lang}:{})});
+  const lang=$('lang').value,res=await asr(out,{chunk_length_s:25,stride_length_s:5,return_timestamps:true,task:'transcribe',...(lang?{language:lang}:{})});
   parts=(res.chunks||[]).map(x=>({start:x.timestamp?.[0]??0,end:x.timestamp?.[1]??0,text:x.text||''})).filter(x=>x.text.trim()&&Number.isFinite(x.end));
   plain=res.text||parts.map(x=>x.text).join(' ');
   $('captions').value=parts.length?makeSRT(parts):plain;
   $('srt').disabled=!parts.length;$('copy').disabled=!plain;$('moments').disabled=!parts.length;
   say('Selesai. '+parts.length+' segmen subtitle.',100);
- }catch(e){console.error(e);say('Transkripsi gagal: '+e.message,0);alert('Transkripsi gagal. Coba video lebih pendek, internet stabil, dan Chrome terbaru. '+e.message);}
+ }catch(e){console.error(e);say('Transkripsi gagal: '+e.message,0);alert('Transkripsi gagal: '+e.message+'\nCoba video lebih pendek dan koneksi internet stabil.');}
  finally{b.disabled=false;}
 };
-$('srt').onclick=()=>downloadText('nightclip-subtitle.srt',makeSRT(parts),'text/plain;charset=utf-8');
-$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('captions').value);say('Teks subtitle disalin.',100);}catch{alert('Browser tidak mengizinkan salin otomatis. Tekan lama teks lalu pilih Salin.');}};
+$('srt').onclick=()=>saveText('nightclip-subtitle.srt',makeSRT(parts));
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('captions').value);say('Teks subtitle disalin.',100);}catch{alert('Tekan lama teks subtitle lalu pilih Salin.');}};
 $('moments').onclick=()=>{
  const keys=['haha','hahaha','wkwk','lucu','kocak','ngakak','astaga','wow','anjir','gila'];
  const found=parts.filter(p=>keys.some(k=>p.text.toLowerCase().includes(k)));
- $('hits').innerHTML=found.length?found.map(p=>'<p>⏱ '+p.start.toFixed(1)+'s — '+escapeHTML(p.text)+'</p>').join(''):'Tidak ada kata kunci lucu ditemukan. Ini hanya pencarian kata, bukan AI penilai humor.';
+ $('hits').innerHTML=found.length?found.map(p=>'<p>⏱ '+p.start.toFixed(1)+'s — '+escapeHTML(p.text)+'</p>').join(''):'Tidak ada kata kunci lucu ditemukan. Ini pencarian kata sederhana.';
 };
 $('cut').onclick=async()=>{
- const b=$('cut'),a=+$('start').value,z=+$('end').value;
+ const b=$('cut'),start=+$('start').value,end=+$('end').value;
  if(!file)return alert('Pilih video dahulu.');
- if(z-a<1)return alert('Pilih durasi minimal 1 detik.');
- b.disabled=true;$('downloadArea').replaceChildren();
+ if(end-start<1)return alert('Pilih durasi minimal 1 detik.');
+ b.disabled=true;$('emptyOutput').textContent='Sedang membuat video… jangan tutup halaman ini.';
  try{
-  await loadFFmpeg();say('Menyiapkan video…',35);
-  const ext=(file.name.split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'');
-  const input='input.'+ext;
+  await loadFFmpeg();say('Membaca video…',35);
+  const ext=(file.name.split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'')||'mp4';
+  const input='source.'+ext;
   await ffmpeg.writeFile(input,new Uint8Array(await file.arrayBuffer()));
-  const args=['-ss',String(a),'-i',input,'-t',String(z-a)];
-  const edited=$('captions').value.trim();
-  if(parts.length&&edited){
-   // Gunakan subtitle hasil transkripsi yang sudah diedit (format SRT).
-   await ffmpeg.writeFile('captions.srt',new TextEncoder().encode(edited));
-   args.push('-vf',"subtitles=captions.srt:force_style='FontName=Arial,FontSize=18,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=45'");
+  const args=['-ss',String(start),'-i',input,'-t',String(end-start)];
+  const subtitleText=$('captions').value.trim();
+  if(parts.length&&subtitleText){
+   await ffmpeg.writeFile('nightclip-captions.srt',new TextEncoder().encode(subtitleText));
+   args.push('-vf',"subtitles=nightclip-captions.srt:force_style='FontName=Arial,FontSize=18,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=45'");
   }
-  args.push('-c:v','libx264','-preset','ultrafast','-crf','28','-c:a','aac','-b:a','128k','-movflags','+faststart','output.mp4');
-  say('Memotong dan merender MP4…',58);
-  const exitCode=await ffmpeg.exec(args);
-  if(exitCode!==0)throw new Error('FFmpeg gagal (kode '+exitCode+'). Pastikan subtitle masih berformat SRT atau coba ekspor tanpa subtitle.');
-  say('Menyiapkan file unduhan…',90);
-  const data=await ffmpeg.readFile('output.mp4');
-  downloadBlob('nightclip-potongan.mp4',new Blob([data],{type:'video/mp4'}));
-  say('Berhasil! Tekan tombol hijau untuk menyimpan MP4.',100);
- }catch(e){
-  console.error(e);say('Ekspor gagal: '+e.message,0);
-  alert('Ekspor gagal: '+e.message+'\nCoba video lebih pendek (misalnya 10–30 detik), tutup aplikasi lain, dan pastikan internet stabil.');
+  args.push('-c:v','libx264','-preset','ultrafast','-crf','28','-c:a','aac','-b:a','128k','-movflags','+faststart','result.mp4');
+  say('Merender video MP4…',60);
+  const code=await ffmpeg.exec(args);
+  if(code!==0)throw new Error('FFmpeg berhenti dengan kode '+code);
+  const data=await ffmpeg.readFile('result.mp4');
+  if(!data||!data.length)throw new Error('File hasil kosong. Coba durasi lebih pendek.');
+  saveBlob(new Blob([data],{type:'video/mp4'}),'nightclip-hasil.mp4');
+  say('Video selesai dibuat. Tekan tombol Download MP4 pada bagian Hasil Video.',100);
+ }catch(err){
+  console.error(err);say('Gagal membuat video: '+err.message,0);
+  $('emptyOutput').textContent='Belum ada hasil video. Error: '+err.message;
+  alert('Video belum berhasil dibuat.\n'+err.message+'\n\nCoba video 10–30 detik, tutup tab/aplikasi lain, dan pastikan Chrome terhubung internet.');
  }finally{b.disabled=false;}
 };
+$('downloadLink').addEventListener('click',()=>{say('Unduhan dimulai. Periksa folder Download HP kamu.',100);});
 </script>
 </body>
 </html>
