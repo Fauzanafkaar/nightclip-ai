@@ -88,27 +88,22 @@ $('end').oninput=()=>{$('etxt').textContent=(+$('end').value).toFixed(1)+'s';if(
 
 async function loadFFmpeg(){
  if(ffmpegReady)return;
- say('Memuat mesin pemotong video…',8);
+ say('Memuat FFmpeg…',8);
  const {FFmpeg}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js');
  const {toBlobURL}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js');
  ffmpeg=new FFmpeg();
- const pkg='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm';
  const core='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
- say('Menyiapkan worker FFmpeg…',15);
- const response=await fetch(pkg+'/worker.js');
- if(!response.ok)throw new Error('Worker FFmpeg tidak dapat diunduh. Periksa koneksi internet.');
- let worker=await response.text();
- // Ubah import relatif menjadi URL absolut agar worker dari Blob bisa menemukan modul pendukung.
- worker=worker.replace(/(["'])\.\/(const|errors)\.js\1/g,(_,q,name)=>q+pkg+'/'+name+'.js'+q);
- const workerBlob=URL.createObjectURL(new Blob([worker],{type:'text/javascript'}));
- try{
-  await ffmpeg.load({
-   classWorkerURL:workerBlob,
+ say('Memuat worker dari GitHub Pages…',15);
+ // File ffmpeg-worker.js harus diunggah ke folder root repositori yang sama dengan index.html.
+ const localWorker=new URL('./ffmpeg-worker.js',document.baseURI).href;
+ const response=await fetch(localWorker,{cache:'no-store'});
+ if(!response.ok)throw new Error('File ffmpeg-worker.js tidak ditemukan (HTTP '+response.status+'). Upload file pendamping ke root GitHub.');
+ await ffmpeg.load({
+   classWorkerURL:localWorker,
    coreURL:await toBlobURL(core+'/ffmpeg-core.js','text/javascript'),
    wasmURL:await toBlobURL(core+'/ffmpeg-core.wasm','application/wasm')
-  });
-  ffmpegReady=true;
- }finally{URL.revokeObjectURL(workerBlob);}
+ });
+ ffmpegReady=true;
 }
 $('trans').onclick=async()=>{
  const b=$('trans');b.disabled=true;
@@ -166,9 +161,9 @@ $('cut').onclick=async()=>{
   saveBlob(new Blob([data],{type:'video/mp4'}),'nightclip-hasil.mp4');
   say('Video selesai dibuat. Tekan tombol Download MP4 pada bagian Hasil Video.',100);
  }catch(err){
-  console.error(err);say('Gagal membuat video: '+err.message,0);
+  console.error(err);say('Gagal membuat video: '+(err && err.message ? err.message : String(err)),0);
   $('emptyOutput').textContent='Belum ada hasil video. Error: '+err.message;
-  alert('Video belum berhasil dibuat.\n'+err.message+'\n\nCoba video 10–30 detik, tutup tab/aplikasi lain, dan pastikan Chrome terhubung internet.');
+  alert('Video belum berhasil dibuat.\n'+(err && err.message ? err.message : String(err))+'\n\nCoba video 10–30 detik, tutup tab/aplikasi lain, dan pastikan Chrome terhubung internet.');
  }finally{b.disabled=false;}
 };
 $('downloadLink').addEventListener('click',()=>{say('Unduhan dimulai. Periksa folder Download HP kamu.',100);});
